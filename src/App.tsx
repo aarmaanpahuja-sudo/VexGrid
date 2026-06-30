@@ -46,21 +46,24 @@ export default function App() {
   const zoneOptions = data.zones;
 
   // ✅ Fixed: Now properly filters incidents based on user's watch zones
-  const filteredIncidents = useMemo(() => {
-    let list = data.incidents;
+    const filteredIncidents = useMemo(() => {
+    let list = [...data.incidents];
 
-    const watchedZips = data.zones.map((z) => z.zip_code);
-
-    if (watchedZips.length > 0 && !activeZip) {
-      list = list.filter((i) => watchedZips.includes(i.zip_code));
-    } else if (activeZip) {
+    if (activeZip) {
+      // User clicked a specific zip → show ONLY that zip
       list = list.filter((i) => i.zip_code === activeZip);
+    } else if (data.zones.length > 0) {
+      // No specific zip selected, but user has watch zones → show only their zips
+      const watchedZips = data.zones.map((z) => z.zip_code);
+      list = list.filter((i) => watchedZips.includes(i.zip_code));
     }
 
+    // Status filter
     if (statusFilter !== "all") {
       list = list.filter((i) => i.status === statusFilter);
     }
 
+    // Search filter
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
