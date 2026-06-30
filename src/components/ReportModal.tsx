@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, MapPin, Loader2, Check, Navigation } from "lucide-react";
 import { CATEGORY_LIST } from "../lib/categories";
 import type { IncidentCategory } from "../lib/supabase";
