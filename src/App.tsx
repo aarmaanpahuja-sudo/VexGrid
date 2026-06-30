@@ -45,10 +45,22 @@ export default function App() {
 
   const zoneOptions = data.zones;
 
+  // ✅ Fixed: Now properly filters incidents based on user's watch zones
   const filteredIncidents = useMemo(() => {
     let list = data.incidents;
-    if (activeZip) list = list.filter((i) => i.zip_code === activeZip);
-    if (statusFilter !== "all") list = list.filter((i) => i.status === statusFilter);
+
+    const watchedZips = data.zones.map((z) => z.zip_code);
+
+    if (watchedZips.length > 0 && !activeZip) {
+      list = list.filter((i) => watchedZips.includes(i.zip_code));
+    } else if (activeZip) {
+      list = list.filter((i) => i.zip_code === activeZip);
+    }
+
+    if (statusFilter !== "all") {
+      list = list.filter((i) => i.status === statusFilter);
+    }
+
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -59,8 +71,9 @@ export default function App() {
           i.zip_code.includes(q)
       );
     }
+
     return list;
-  }, [data.incidents, activeZip, statusFilter, search]);
+  }, [data.incidents, data.zones, activeZip, statusFilter, search]);
 
   const activeCount = data.incidents.filter((i) => i.status === "active").length;
   const resolvedCount = data.incidents.filter((i) => i.status === "resolved").length;
@@ -72,7 +85,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-slate-950 text-slate-200">
-      {/* Sidebar (desktop) */}
+      {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-800 bg-slate-900/40 backdrop-blur-sm md:flex">
         <div className="flex items-center gap-2.5 px-5 py-5">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-900">
@@ -93,9 +106,7 @@ export default function App() {
                 key={n.id}
                 onClick={() => setView(n.id)}
                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                  active
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+                  active ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
                 }`}
               >
                 <Icon size={18} />
@@ -143,9 +154,7 @@ export default function App() {
 
       {/* Main */}
       <main className="flex min-w-0 flex-1 flex-col">
-        {/* Top bar */}
         <header className="z-20 flex items-center gap-3 border-b border-slate-800 bg-slate-950/80 px-4 py-3 backdrop-blur-md md:px-6">
-          {/* mobile logo */}
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-900 md:hidden">
             <Shield size={16} />
           </span>
@@ -161,6 +170,7 @@ export default function App() {
               />
             </div>
           )}
+
           {view !== "feed" && (
             <h2 className="text-base font-semibold text-white md:text-lg">
               {NAV.find((n) => n.id === view)?.label}
@@ -186,7 +196,7 @@ export default function App() {
           </div>
         </header>
 
-        {/* Community filter bar */}
+        {/* Zip Filter Bar */}
         {view !== "zones" && (
           <div className="flex items-center gap-2 overflow-x-auto border-b border-slate-800 bg-slate-950/60 px-4 py-2.5 md:px-6">
             <button
@@ -199,6 +209,7 @@ export default function App() {
             >
               All My Zip Codes
             </button>
+
             {zoneOptions.map((z) => {
               const active = activeZip === z.zip_code;
               return (
@@ -217,6 +228,7 @@ export default function App() {
                 </button>
               );
             })}
+
             {zoneOptions.length === 0 && (
               <span className="text-xs text-slate-500">
                 No zones yet — add one in Watch Zones to start filtering.
@@ -269,7 +281,7 @@ export default function App() {
           )}
         </div>
 
-        {/* Bottom navbar (mobile) */}
+        {/* Mobile Bottom Nav */}
         <nav className="flex items-stretch border-t border-slate-800 bg-slate-900/95 backdrop-blur-md md:hidden">
           {NAV.map((n) => {
             const Icon = n.icon;
@@ -306,7 +318,7 @@ export default function App() {
   );
 }
 
-/* ---------- Feed ---------- */
+/* ---------- Feed View ---------- */
 function FeedView({
   incidents,
   comments,
@@ -331,6 +343,7 @@ function FeedView({
     { id: "resolved", label: "Resolved" },
     { id: "all", label: "All" },
   ];
+
   return (
     <div className="mx-auto max-w-2xl space-y-3">
       <div className="flex items-center gap-1.5">
@@ -373,7 +386,7 @@ function FeedView({
   );
 }
 
-/* ---------- Watch Zones ---------- */
+/* ---------- Zones View ---------- */
 function ZonesView({
   zones,
   karma,
@@ -394,7 +407,6 @@ function ZonesView({
   const [name, setName] = useState(displayName);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-
   const validZip = /^\d{5}$/.test(zip);
 
   const add = async () => {
@@ -424,7 +436,7 @@ function ZonesView({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      {/* Karma tile */}
+      {/* Karma */}
       <div className="overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-900/40 p-6">
         <div className="flex items-center gap-4">
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300">
@@ -438,7 +450,7 @@ function ZonesView({
         </div>
       </div>
 
-      {/* Profile name */}
+      {/* Profile Name */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
         <h3 className="text-sm font-semibold text-white">Your identity</h3>
         <p className="mt-0.5 text-xs text-slate-500">Shown on comments you post.</p>
@@ -459,7 +471,7 @@ function ZonesView({
         </div>
       </div>
 
-      {/* Add zone */}
+      {/* Add Zone */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
         <h3 className="text-sm font-semibold text-white">Add a new watch zone</h3>
         <p className="mt-0.5 text-xs text-slate-500">Monitor any US zip code community.</p>
@@ -490,20 +502,15 @@ function ZonesView({
         {err && <p className="mt-2 text-xs text-red-400">{err}</p>}
       </div>
 
-      {/* Zone list */}
+      {/* Zone List */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
         <h3 className="text-sm font-semibold text-white">Your watch zones</h3>
         {zones.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-500">
-            No zones yet. Add one above to start monitoring a community.
-          </p>
+          <p className="mt-3 text-sm text-slate-500">No zones yet. Add one above to start monitoring a community.</p>
         ) : (
           <ul className="mt-3 space-y-2">
             {zones.map((z) => (
-              <li
-                key={z.id}
-                className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/40 px-4 py-3"
-              >
+              <li key={z.id} className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/40 px-4 py-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-800 text-slate-300">
                   <MapPin size={16} />
                 </span>
@@ -526,7 +533,7 @@ function ZonesView({
   );
 }
 
-/* ---------- Analytics ---------- */
+/* ---------- Analytics View ---------- */
 function AnalyticsView({
   incidents,
   activeCount,
@@ -541,9 +548,7 @@ function AnalyticsView({
   const byCategory = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const i of incidents) counts[i.category] = (counts[i.category] || 0) + 1;
-    return CATEGORY_LIST.map((c) => ({ meta: c, count: counts[c.id] || 0 })).sort(
-      (a, b) => b.count - a.count
-    );
+    return CATEGORY_LIST.map((c) => ({ meta: c, count: counts[c.id] || 0 })).sort((a, b) => b.count - a.count);
   }, [incidents]);
 
   const byZip = useMemo(() => {
