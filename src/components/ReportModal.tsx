@@ -31,9 +31,19 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  // Auto-fill zip from first watch zone when it becomes available (fixes race where
+  // modal opens before zones load from Supabase, leaving zip="" and validZip=false)
+  useEffect(() => {
+    if (zones.length > 0 && zip === "") {
+      setZip(zones[0].zip_code);
+      setCoords(null);
+      setGeoStatus("idle");
+    }
+  }, [zones]);
+
   if (!open) return null;
 
-  const validZip = /^\d{5}$/.test(zip);
+  const validZip = /^\d{5}$/.test((zip || "").trim());
 
   const reset = () => {
     setStep(1);
@@ -91,7 +101,7 @@ export default function ReportModal({ open, onClose, zones, onSubmit }: Props) {
         title: title.trim(),
         description: description.trim(),
         location_description: location.trim(),
-        zip_code: zip,
+        zip_code: zip.trim(),
         latitude: latLng[0],
         longitude: latLng[1],
       });
