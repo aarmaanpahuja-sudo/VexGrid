@@ -113,15 +113,16 @@ export function useWatchTowerData(userId: string | null) {
   }, []);
 
   // Actions
-    const addIncident = useCallback(
+      const addIncident = useCallback(
     async (input: Omit<Incident, "id" | "created_at" | "updated_at" | "status" | "verifications" | "reporter_id" | "user_id">) => {
       const row: Record<string, unknown> = { ...input, reporter_id: clientId };
       if (userId) row.user_id = userId;
 
-      // Optimistic update - show the incident immediately
+      // Create optimistic incident so it shows immediately
+      const tempId = crypto.randomUUID();
       const optimisticIncident: Incident = {
+        id: tempId,
         ...(row as any),
-        id: crypto.randomUUID(),
         status: "active",
         verifications: 0,
         created_at: new Date().toISOString(),
@@ -131,7 +132,7 @@ export function useWatchTowerData(userId: string | null) {
       setIncidents((prev) => [optimisticIncident, ...prev]);
 
       try {
-        const { data, error } = await supabase
+        const { data: insertedIncident, error } = await supabase
           .from("incidents")
           .insert(row)
           .select("*")
@@ -139,18 +140,23 @@ export function useWatchTowerData(userId: string | null) {
 
         if (error) throw error;
 
-        // Replace optimistic incident with real one from database
+        // Replace the optimistic incident with the real one from the database
         setIncidents((prev) =>
-          prev.map((i) => (i.id === optimisticIncident.id ? (data as Incident) : i))
+          prev.map((incident) =>
+            incident.id === tempId ? (insertedIncident as Incident) : incident
+          )
         );
 
+        // Update karma
         await supabase.rpc("bump_karma", { p_client: clientId, p_user: userId ?? null });
-        setProfile((prev) => (prev ? { ...prev, karma: prev.karma + 10 } : prev));
+        setProfile((prev) =>
+          prev ? { ...prev, karma: prev.karma + 10 } : prev
+        );
 
-        return data as Incident;
+        return insertedIncident as Incident;
       } catch (err) {
-        // Remove optimistic incident if insert failed
-        setIncidents((prev) => prev.filter((i) => i.id !== optimisticIncident.id));
+        // Remove optimistic incident if the insert failed
+        setIncidents((prev) => prev.filter((i) => i.id !== tempId));
         throw err;
       }
     },
