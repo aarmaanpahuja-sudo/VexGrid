@@ -139,12 +139,18 @@ export function useWatchTowerData(userId: string | null) {
     setIncidents((prev) => prev.map((i) => (i.id === id ? { ...i, status: "resolved" } : i)));
   }, []);
 
-  const verifyIncident = useCallback(async (id: string) => {
-    const { data, error } = await supabase.rpc("increment_verification", { p_id: id });
+    const verifyIncident = useCallback(async (id: string) => {
+    const { data, error } = await supabase.rpc("toggle_verification", {
+      p_id: id,
+      p_client: clientId,
+      p_user: userId ?? null,
+    });
     if (error) throw error;
     const newCount = data as number;
-    setIncidents((prev) => prev.map((i) => (i.id === id ? { ...i, verifications: newCount } : i)));
-  }, []);
+    setIncidents((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, verifications: newCount } : i))
+    );
+  }, [clientId, userId]);
 
   const addComment = useCallback(
     async (incidentId: string, body: string, authorName: string) => {
