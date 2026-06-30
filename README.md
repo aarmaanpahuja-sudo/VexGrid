@@ -2,7 +2,7 @@
 
 A real-time neighborhood safety platform where neighbors report and track local incidents — open garage doors, unattended packages, lost pets, vandalism, suspicious activity, and safe-walk requests. Built for communities to stay informed and look out for each other.
 
-Website: https://watch-tower-dq3jcjzt1-aarmaanpahuja-1730s-projects.vercel.app/
+Website: watch-tower-app.vercel.app
 
 ## Features
 
