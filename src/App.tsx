@@ -203,15 +203,15 @@ export default function App() {
         {view !== "zones" && (
           <div className="flex items-center gap-2 overflow-x-auto border-b border-slate-800 bg-slate-950/60 px-4 py-2.5 md:px-6">
             <button
-              onClick={() => setActiveZip(null)}
-              className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
-                activeZip === null
-                  ? "border-white bg-white text-slate-900"
-                  : "border-slate-700 bg-slate-900/40 text-slate-300 hover:border-slate-600 hover:bg-slate-800/50"
-              }`}
-            >
-              All My Zip Codes
-            </button>
+  onClick={() => setActiveZip(null)}
+  className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+    activeZip === null
+      ? "border-white bg-white text-slate-900"
+      : "border-slate-700 bg-slate-900/40 text-slate-300 hover:border-slate-600 hover:bg-slate-800/50"
+  }`}
+>
+  All Zip Codes
+</button>
 
             {zoneOptions.map((z) => {
               const active = activeZip === z.zip_code;
@@ -276,11 +276,11 @@ export default function App() {
             />
           ) : (
             <AnalyticsView
-              incidents={data.incidents}
-              activeCount={activeCount}
-              resolvedCount={resolvedCount}
-              zones={data.zones}
-            />
+  incidents={activeZip ? filteredIncidents : data.incidents}
+  activeCount={activeCount}
+  resolvedCount={resolvedCount}
+  zones={data.zones}
+/>
           )}
         </div>
 
