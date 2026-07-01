@@ -301,6 +301,23 @@ export default function App() {
                   By sharing what we see, we can all look out for each other.
                 </p>
               </div>
+
+
+              <div>
+                <h2 className="text-xl font-semibold text-white mb-2">About Us</h2>
+                <p className="text-slate-300">
+                  You may be wondering, “What exactly is this project?” To answer your question, WatchTower is a project created for the Step Up Loudoun Youth Competition by 9th graders Aarmaan Pahuja and Aditya Ghosh, along with 7th graders Abhir Pahuja and Ayaan Priyal.
+
+We all live in communities where neighbors look out for each other, but we noticed that there was not an easy way for people to quickly share important local updates. Whether it is an unattended package, a lost pet, suspicious activity, vandalism, or a request for a safe walk, important information can easily go unnoticed. We wanted to create a platform that helps communities stay connected, informed, and safer.
+
+WatchTower is a real-time neighborhood safety platform where residents can report and track local incidents within their community. Users can view active reports, receive updates, communicate through comments, verify incidents, and monitor specific watch zones that matter to them. By making it easier for neighbors to work together, WatchTower helps communities respond faster and support each other.
+
+However, technology alone cannot create a safer community. WatchTower is designed to encourage awareness, responsibility, and cooperation between neighbors. The goal is not to expose problems, but to give communities the tools they need to help one another and prevent small issues from becoming bigger ones.
+
+Through this project, we hope to show how technology can bring people together and create stronger, more connected neighborhoods.
+
+                </p>
+              </div>
             </div>
           ) : null}
         </div>
