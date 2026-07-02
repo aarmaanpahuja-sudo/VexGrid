@@ -89,14 +89,14 @@ if (search.trim()) {
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-800 bg-slate-900/40 backdrop-blur-sm md:flex">
         <div className="flex items-center gap-2.5 px-5 py-5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-900">
-            <Shield size={20} />
-          </span>
-          <div>
-            <h1 className="text-base font-semibold tracking-tight text-white">WatchTower</h1>
-            <p className="text-[11px] text-slate-500">Community Safety</p>
-          </div>
-        </div>
+  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-900">
+    <Shield size={20} />
+  </span>
+  <div>
+    <h1 className="text-base font-semibold tracking-tight text-white">SafeLoudoun</h1>
+    <p className="text-[11px] text-slate-500">Real-time neighborhood safety</p>
+  </div>
+</div>
 
         <nav className="flex-1 space-y-1 px-3 py-2">
           {NAV.map((n) => {
