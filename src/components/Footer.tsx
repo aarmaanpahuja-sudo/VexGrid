@@ -3,7 +3,7 @@ export default function Footer() {
     <footer className="border-t border-slate-800 bg-slate-950 py-6 text-sm text-slate-500">
       <div className="mx-auto max-w-6xl px-4">
 
-        {/* TOP ROW (always visible) */}
+        {/* TOP ROW */}
         <div className="flex items-center justify-center gap-4">
 
           <p className="whitespace-nowrap">
@@ -16,6 +16,8 @@ export default function Footer() {
             {/* Instagram */}
             <a
               href="https://www.instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="Instagram"
               className="text-slate-500 transition-colors hover:text-white"
             >
@@ -28,6 +30,8 @@ export default function Footer() {
             {/* YouTube */}
             <a
               href="https://www.youtube.com"
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="YouTube"
               className="text-slate-500 transition-colors hover:text-white"
             >
@@ -40,6 +44,8 @@ export default function Footer() {
             {/* GitHub */}
             <a
               href="https://github.com"
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="GitHub"
               className="text-slate-500 transition-colors hover:text-white"
             >
