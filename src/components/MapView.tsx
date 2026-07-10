@@ -6,9 +6,13 @@ import { zipCenter } from "../lib/geo";
 
 interface Props {
   incidents: Incident[];
-  activeZip: string | null; // null = all
+  activeZip: string | null;
   onResolve: (id: string) => Promise<void>;
 }
+
+// Sensitive categories that should show a circle instead of exact pin
+const SENSITIVE_CATEGORIES = ["open_garage_door", "unattended_package"];
+const FUZZY_RADIUS_METERS = 800; // ~0.5 miles
 
 function buildPinIcon(color: string): L.DivIcon {
   return L.divIcon({
@@ -23,9 +27,9 @@ function buildPinIcon(color: string): L.DivIcon {
 export default function MapView({ incidents, activeZip, onResolve }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<Record<string, L.Marker>>({});
+  const layersRef = useRef<Record<string, L.Layer>>({});
 
-  // Only show active incidents on the map — resolved ones disappear
+  // Only show active incidents on the map
   const filtered = useMemo(
     () =>
       incidents.filter(
@@ -34,30 +38,35 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
     [incidents, activeZip]
   );
 
-  // init map once
+  // Init map once
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
+
     const map = L.map(containerRef.current, {
       center: [39.5, -98.35],
       zoom: 4,
       zoomControl: true,
       attributionControl: true,
     });
+
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
       attribution: '&copy; OpenStreetMap &copy; CARTO',
       maxZoom: 19,
     }).addTo(map);
+
     mapRef.current = map;
+
     return () => {
       map.remove();
       mapRef.current = null;
     };
   }, []);
 
-  // recenter when active zip changes
+  // Recenter when active zip changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
+
     if (activeZip) {
       map.flyTo(zipCenter(activeZip), 12, { duration: 0.8 });
     } else if (filtered.length > 0) {
@@ -70,39 +79,80 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
     }
   }, [activeZip]);
 
-  // sync markers
+  // Sync markers and circles
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
     const currentIds = new Set(filtered.map((i) => i.id));
-    // remove stale markers (resolved incidents removed here)
-    Object.keys(markersRef.current).forEach((id) => {
+
+    // Remove stale layers (resolved incidents)
+    Object.keys(layersRef.current).forEach((id) => {
       if (!currentIds.has(id)) {
-        map.removeLayer(markersRef.current[id]);
-        delete markersRef.current[id];
+        map.removeLayer(layersRef.current[id]);
+        delete layersRef.current[id];
       }
     });
-    // add / update
+
+    // Add or update layers
     filtered.forEach((inc) => {
       if (inc.latitude == null || inc.longitude == null) return;
-      const meta = CATEGORIES[inc.category];
-      const icon = buildPinIcon(meta.pinColor);
-      const existing = markersRef.current[inc.id];
-      if (existing) {
-        existing.setIcon(icon);
-        existing.setLatLng([inc.latitude, inc.longitude]);
-        existing.setPopupContent(popupHtml(inc));
-      } else {
-        const marker = L.marker([inc.latitude, inc.longitude], { icon }).addTo(map);
-        marker.bindPopup(popupHtml(inc));
-        marker.on("popupopen", (e) => {
-          const root = (e.popup.getElement() as HTMLElement)?.querySelector("[data-resolve]");
-          root?.addEventListener("click", async () => {
-            await onResolve(inc.id);
+
+      const isSensitive = SENSITIVE_CATEGORIES.includes(inc.category);
+      const existing = layersRef.current[inc.id];
+
+      if (isSensitive) {
+        // Show circle instead of pin for sensitive categories
+        if (existing && existing instanceof L.Circle) {
+          existing.setLatLng([inc.latitude, inc.longitude]);
+          existing.setRadius(FUZZY_RADIUS_METERS);
+          existing.setPopupContent(popupHtml(inc));
+        } else {
+          if (existing) map.removeLayer(existing);
+
+          const circle = L.circle([inc.latitude, inc.longitude], {
+            radius: FUZZY_RADIUS_METERS,
+            color: "#ef4444",
+            fillColor: "#ef4444",
+            fillOpacity: 0.15,
+            weight: 2,
+          }).addTo(map);
+
+          circle.bindPopup(popupHtml(inc));
+
+          circle.on("popupopen", (e) => {
+            const root = (e.popup.getElement() as HTMLElement)?.querySelector("[data-resolve]");
+            root?.addEventListener("click", async () => {
+              await onResolve(inc.id);
+            });
           });
-        });
-        markersRef.current[inc.id] = marker;
+
+          layersRef.current[inc.id] = circle;
+        }
+      } else {
+        // Normal pin for other categories
+        const meta = CATEGORIES[inc.category];
+        const icon = buildPinIcon(meta.pinColor);
+
+        if (existing && existing instanceof L.Marker) {
+          existing.setIcon(icon);
+          existing.setLatLng([inc.latitude, inc.longitude]);
+          existing.setPopupContent(popupHtml(inc));
+        } else {
+          if (existing) map.removeLayer(existing);
+
+          const marker = L.marker([inc.latitude, inc.longitude], { icon }).addTo(map);
+          marker.bindPopup(popupHtml(inc));
+
+          marker.on("popupopen", (e) => {
+            const root = (e.popup.getElement() as HTMLElement)?.querySelector("[data-resolve]");
+            root?.addEventListener("click", async () => {
+              await onResolve(inc.id);
+            });
+          });
+
+          layersRef.current[inc.id] = marker;
+        }
       }
     });
   }, [filtered, onResolve]);
@@ -111,6 +161,7 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
     const meta = CATEGORIES[inc.category];
     const latStr = inc.latitude != null ? inc.latitude.toFixed(5) : "—";
     const lngStr = inc.longitude != null ? inc.longitude.toFixed(5) : "—";
+
     return `
       <div style="min-width:220px;max-width:260px;font-family:inherit">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
