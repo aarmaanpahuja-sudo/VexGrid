@@ -276,7 +276,11 @@ if (search.trim()) {
             />
           ) : view === "analytics" ? (
             <AnalyticsView
-  incidents={activeZip ? filteredIncidents : data.incidents}
+  incidents={
+    activeZip 
+      ? data.incidents.filter((i) => i.zip_code === activeZip) 
+      : data.incidents
+  }
   zones={data.zones}
 />
           ) : view === "about" ? (
