@@ -10,7 +10,7 @@ interface Props {
   onResolve: (id: string) => Promise<void>;
 }
 
-// Sensitive categories that should show a circle instead of exact pin
+// Sensitive categories → show circle instead of pin
 const SENSITIVE_CATEGORIES = ["open_garage_door", "unattended_package"];
 const FUZZY_RADIUS_METERS = 800; // ~0.5 miles
 
@@ -29,7 +29,6 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
   const mapRef = useRef<L.Map | null>(null);
   const layersRef = useRef<Record<string, L.Layer>>({});
 
-  // Only show active incidents on the map
   const filtered = useMemo(
     () =>
       incidents.filter(
@@ -38,7 +37,7 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
     [incidents, activeZip]
   );
 
-  // Init map once
+  // Init map
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -62,7 +61,7 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
     };
   }, []);
 
-  // Recenter when active zip changes
+  // Recenter
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -79,14 +78,14 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
     }
   }, [activeZip]);
 
-  // Sync markers and circles
+  // Sync markers + circles
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
     const currentIds = new Set(filtered.map((i) => i.id));
 
-    // Remove stale layers (resolved incidents)
+    // Remove old layers
     Object.keys(layersRef.current).forEach((id) => {
       if (!currentIds.has(id)) {
         map.removeLayer(layersRef.current[id]);
@@ -94,7 +93,6 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
       }
     });
 
-    // Add or update layers
     filtered.forEach((inc) => {
       if (inc.latitude == null || inc.longitude == null) return;
 
@@ -102,7 +100,7 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
       const existing = layersRef.current[inc.id];
 
       if (isSensitive) {
-        // Show circle instead of pin for sensitive categories
+        // Circle for sensitive categories
         if (existing && existing instanceof L.Circle) {
           existing.setLatLng([inc.latitude, inc.longitude]);
           existing.setRadius(FUZZY_RADIUS_METERS);
@@ -119,7 +117,6 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
           }).addTo(map);
 
           circle.bindPopup(popupHtml(inc));
-
           circle.on("popupopen", (e) => {
             const root = (e.popup.getElement() as HTMLElement)?.querySelector("[data-resolve]");
             root?.addEventListener("click", async () => {
@@ -130,7 +127,7 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
           layersRef.current[inc.id] = circle;
         }
       } else {
-        // Normal pin for other categories
+        // Normal pin
         const meta = CATEGORIES[inc.category];
         const icon = buildPinIcon(meta.pinColor);
 
@@ -143,7 +140,6 @@ export default function MapView({ incidents, activeZip, onResolve }: Props) {
 
           const marker = L.marker([inc.latitude, inc.longitude], { icon }).addTo(map);
           marker.bindPopup(popupHtml(inc));
-
           marker.on("popupopen", (e) => {
             const root = (e.popup.getElement() as HTMLElement)?.querySelector("[data-resolve]");
             root?.addEventListener("click", async () => {
