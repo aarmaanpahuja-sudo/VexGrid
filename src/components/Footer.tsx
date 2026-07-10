@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="flex items-center justify-center gap-4">
 
           <p className="whitespace-nowrap">
-            © {new Date().getFullYear()} SafeCircle
+            © {new Date().getFullYear()} SafeLoudoun
           </p>
 
           {/* Social Icons */}
@@ -43,7 +43,7 @@ export default function Footer() {
 
             {/* GitHub */}
             <a
-              href="https://github.com/aarmaanpahuja-sudo/SafeCircle"
+              href="https://github.com/aarmaanpahuja-sudo/SafeLoudoun"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
