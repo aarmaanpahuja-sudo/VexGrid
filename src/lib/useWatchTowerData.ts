@@ -142,12 +142,25 @@ export function useWatchTowerData(userId: string | null) {
   );
 
   const resolveIncident = useCallback(async (id: string) => {
-    const { error } = await supabase
-      .from("incidents")
-      .update({ status: "resolved", updated_at: new Date().toISOString() })
-      .eq("id", id);
-    if (error) throw error;
-    setIncidents((prev) => prev.map((i) => (i.id === id ? { ...i, status: "resolved" } : i)));
+
+    setIncidents((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, status: "resolved" } : i))
+    );
+
+    try {
+      const { error } = await supabase
+        .from("incidents")
+        .update({ status: "resolved", updated_at: new Date().toISOString() })
+        .eq("id", id);
+
+      if (error) throw error;
+    } catch (err) {
+
+      setIncidents((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, status: "active" } : i))
+      );
+      throw err;
+    }
   }, []);
 
     const verifyIncident = useCallback(async (id: string) => {
