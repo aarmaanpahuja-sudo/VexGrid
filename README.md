@@ -1,8 +1,8 @@
-# SafeLoudoun
+# VexGrid
 
 A real-time neighborhood safety platform where neighbors report and track local incidents — open garage doors, unattended packages, lost pets, vandalism, suspicious activity, and safe-walk requests. Built for communities to stay informed and look out for each other.
 
-Website: https://safeloudoun.vercel.app
+Website: https://VexGrid.vercel.app
 
 ## Features
 
