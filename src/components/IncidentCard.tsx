@@ -12,16 +12,16 @@ interface Props {
   onVerify: (id: string) => Promise<void>;
   onComment: (incidentId: string, body: string, authorName: string) => Promise<unknown>;
   authorName: string;
+  onOpenMap: (incident: Incident) => void;
 }
 
-export default function IncidentCard({ incident, comments, onResolve, onVerify, onComment, authorName }: Props) {
+export default function IncidentCard({ incident, comments, onResolve, onVerify, onComment, authorName, onOpenMap }: Props) {
   const meta = CATEGORIES[incident.category];
   const Icon = meta.icon;
   const resolved = incident.status === "resolved";
   const incidentComments = comments.filter((c) => c.incident_id === incident.id);
 
   const [showComments, setShowComments] = useState(false);
-  const [showMap, setShowMap] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [posting, setPosting] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -122,12 +122,12 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
           </button>
           {hasCoords && (
             <button
-              onClick={() => setShowMap((s) => !s)}
-              className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-slate-600 hover:bg-slate-800 disabled:opacity-40"
-            >
-              <MapIcon size={13} />
-              Map
-            </button>
+  onClick={() => onOpenMap(incident)}
+  className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-slate-600 hover:bg-slate-800 disabled:opacity-40"
+>
+  <Maximize2 size={13} />
+  Enlarge
+</button>
           )}
           {!resolved && (
             <button
@@ -140,7 +140,7 @@ export default function IncidentCard({ incident, comments, onResolve, onVerify, 
           )}
         </div>
 
-        {showMap && hasCoords && (
+        {hasCoords && (
           <div className="mt-3 border-t border-slate-800 pt-3">
             <div className="mb-2 flex items-center gap-1.5 text-xs text-slate-400">
               <MapPin size={12} className="text-slate-500" />
