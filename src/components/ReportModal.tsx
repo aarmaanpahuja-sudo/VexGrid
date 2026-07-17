@@ -3,6 +3,7 @@ import { X, MapPin, Loader2, Check, Navigation } from "lucide-react";
 import { CATEGORY_LIST } from "../lib/categories";
 import type { IncidentCategory } from "../lib/supabase";
 import { jitterAround } from "../lib/geo";
+import MiniMap from "./MiniMap";
 
 interface Props {
   open: boolean;
@@ -153,6 +154,7 @@ location_description: "",
                     onClick={() => {
   setCategory(c.id);
   setStep(2);
+  requestGeo();
 }}
                     className={`group flex flex-col items-start gap-3 rounded-xl border p-4 text-left transition-all duration-200 ${
                       active
@@ -262,11 +264,21 @@ location_description: "",
                 </div>
               </div>
               {geoStatus === "ok" && coords && (
-                <p className="flex items-center gap-1.5 text-xs text-emerald-400/80">
-                  <MapPin size={12} />
-                  Pin set to {coords[0].toFixed(4)}, {coords[1].toFixed(4)}
-                </p>
-              )}
+  <>
+    <p className="flex items-center gap-1.5 text-xs text-emerald-400/80">
+      <MapPin size={12} />
+      Pin set to {coords[0].toFixed(4)}, {coords[1].toFixed(4)}
+    </p>
+
+    <MiniMap
+      lat={coords[0]}
+      lng={coords[1]}
+      color="#22c55e"
+      draggable
+      onMove={(lat, lng) => setCoords([lat, lng])}
+    />
+  </>
+)}
               {geoStatus === "denied" && (
                 <p className="flex items-center gap-1.5 text-xs text-slate-500">
                   <MapPin size={12} />
