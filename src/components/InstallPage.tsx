@@ -106,11 +106,11 @@ export default function InstallPage() {
         <ol className="space-y-3 text-sm text-slate-300">
           <li className="flex gap-3">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-medium text-slate-300">1</span>
-            <span>Tap the <strong className="text-white">Share</strong> button at the bottom of Safari</span>
+            <span>Tap the <strong className="text-white">Share</strong> button at the bottom of Safari (if you don't see it, tap the three dots, then tap the share button).</span>
           </li>
           <li className="flex gap-3">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-medium text-slate-300">2</span>
-            <span>Scroll down and tap <strong className="text-white">Add to Home Screen</strong></span>
+            <span>Scroll down and tap <strong className="text-white">Add to Home Screen. </strong> If you do not see this button, tap the <strong className="text-white">More</strong> arrow and scroll down. Then tap <strong className="text-white">Add to Home Screen. </strong></span>
           </li>
           <li className="flex gap-3">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-medium text-slate-300">3</span>
