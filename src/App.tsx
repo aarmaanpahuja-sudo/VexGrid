@@ -17,6 +17,7 @@ import {
   LogIn,
   LogOut,
   Info,
+  Download,
 } from "lucide-react";
 import { useWatchTowerData } from "./lib/useWatchTowerData";
 import { useAuth } from "./lib/useAuth";
@@ -25,14 +26,16 @@ import IncidentCard from "./components/IncidentCard";
 import ReportModal from "./components/ReportModal";
 import MapView from "./components/MapView";
 import AuthModal from "./components/AuthModal";
+import InstallPage from "./components/InstallPage";
 
-type View = "feed" | "map" | "zones" | "analytics" | "about";
+type View = "feed" | "map" | "zones" | "analytics" | "about" | "install";
 
-const NAV: { id: View; label: string; icon: typeof Home }[] = [
+const NAV: { id: View; label: string; icon: any }[] = [
   { id: "feed", label: "Feed", icon: Home },
-  { id: "map", label: "Live Map", icon: MapIcon },
-  { id: "zones", label: "Watch Zones", icon: SettingsIcon },
+  { id: "map", label: "Map", icon: MapIcon },
+  { id: "zones", label: "Zones", icon: MapPin },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
+  { id: "install", label: "Install", icon: Download },
   { id: "about", label: "About", icon: Info },
 ];
 
@@ -294,6 +297,8 @@ onOpenMap={openIncidentMap}
   }
   zones={data.zones}
 />
+                    ) : view === "install" ? (
+            <InstallPage />
           ) : view === "about" ? (
             // ==================== ABOUT PAGE ====================
             <div className="mx-auto max-w-2xl p-6 space-y-8">
