@@ -100,7 +100,7 @@ if (search.trim()) {
     <div className="flex h-screen w-full overflow-hidden bg-slate-950 text-slate-200">
       {/* Mobile Side Menu */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-[9999] md:hidden">
           {/* Dark overlay */}
           <div 
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
