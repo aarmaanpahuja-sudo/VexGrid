@@ -18,6 +18,8 @@ import {
   LogOut,
   Info,
   Download,
+  Menu,
+  X,
 } from "lucide-react";
 import { useWatchTowerData } from "./lib/useWatchTowerData";
 import { useAuth } from "./lib/useAuth";
@@ -49,6 +51,7 @@ export default function App() {
   const [authOpen, setAuthOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "resolved">("active");
   const [selectedIncident, setSelectedIncident] = useState<ReturnType<typeof useWatchTowerData>["incidents"][number] | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const zoneOptions = data.zones;
   const openIncidentMap = (incident: ReturnType<typeof useWatchTowerData>["incidents"][number]) => {
@@ -93,8 +96,67 @@ if (search.trim()) {
     setStatusFilter("active");
   };
 
-  return (
+    return (
     <div className="flex h-screen w-full overflow-hidden bg-slate-950 text-slate-200">
+      {/* Mobile Side Menu */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Dark overlay */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Side panel */}
+          <div className="absolute right-0 top-0 h-full w-72 bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col">
+            {/* Header of the menu */}
+            <div 
+              className="flex items-center justify-between px-5 py-4 border-b border-slate-800"
+              style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-900">
+                  <Shield size={18} />
+                </span>
+                <div>
+                  <h1 className="text-base font-semibold text-white">VexGrid</h1>
+                  <p className="text-[11px] text-slate-400">Neighborhood safety</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Navigation links */}
+            <nav className="flex-1 space-y-1 px-3 py-4">
+              {NAV.map((n) => {
+                const Icon = n.icon;
+                const active = view === n.id;
+                return (
+                  <button
+                    key={n.id}
+                    onClick={() => {
+                      setView(n.id);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-all duration-200 ${
+                      active ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+                    }`}
+                  >
+                    <Icon size={18} />
+                    {n.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+      )}
+
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-800 bg-slate-900/40 backdrop-blur-sm md:flex">
         <div className="flex items-center gap-2.5 px-5 py-5">
@@ -164,47 +226,63 @@ if (search.trim()) {
 
       {/* Main */}
       <main className="flex min-w-0 flex-1 flex-col">
-        <header className="z-20 flex items-center gap-3 border-b border-slate-800 bg-slate-950/80 px-4 py-3 backdrop-blur-md md:px-6">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-900 md:hidden">
-            <Shield size={16} />
-          </span>
+        <header 
+  className="z-20 flex items-center gap-3 border-b border-slate-800 bg-slate-950/80 px-4 py-3 backdrop-blur-md md:px-6"
+  style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
+>
+  {/* Left: Logo (mobile only) */}
+  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-900 md:hidden">
+    <Shield size={16} />
+  </span>
 
-          {view === "feed" && (
-            <div className="relative flex-1 max-w-md">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search alerts, locations, zip…"
-                className="w-full rounded-lg border border-slate-800 bg-slate-900/60 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition-all duration-200 focus:border-slate-600 focus:ring-2 focus:ring-slate-700/30"
-              />
-            </div>
-          )}
+  {/* Search (only on Feed) */}
+  {view === "feed" && (
+    <div className="relative flex-1 max-w-md">
+      <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+      <input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search alerts, locations, zip…"
+        className="w-full rounded-lg border border-slate-800 bg-slate-900/60 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition-all duration-200 focus:border-slate-600 focus:ring-2 focus:ring-slate-700/30"
+      />
+    </div>
+  )}
 
-          {view !== "feed" && (
-            <h2 className="text-base font-semibold text-white md:text-lg">
-              {NAV.find((n) => n.id === view)?.label}
-            </h2>
-          )}
+  {/* Title (when not on Feed) */}
+  {view !== "feed" && (
+    <h2 className="text-base font-semibold text-white md:text-lg">
+      {NAV.find((n) => n.id === view)?.label}
+    </h2>
+  )}
 
-          <div className="ml-auto flex items-center gap-2">
-            {!auth.user && (
-              <button
-                onClick={() => setAuthOpen(true)}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-2 text-sm font-medium text-slate-200 transition-all duration-200 hover:bg-slate-800 md:hidden"
-              >
-                <LogIn size={16} />
-              </button>
-            )}
-            <button
-              onClick={() => setReportOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-sm font-medium text-slate-900 transition-all duration-200 hover:bg-slate-200 md:px-4"
-            >
-              <Plus size={16} />
-              <span className="hidden sm:inline">File a Report</span>
-            </button>
-          </div>
-        </header>
+  {/* Right side buttons */}
+  <div className="ml-auto flex items-center gap-2">
+    {!auth.user && (
+      <button
+        onClick={() => setAuthOpen(true)}
+        className="flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-2 text-sm font-medium text-slate-200 transition-all duration-200 hover:bg-slate-800 md:hidden"
+      >
+        <LogIn size={16} />
+      </button>
+    )}
+
+    <button
+      onClick={() => setReportOpen(true)}
+      className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-sm font-medium text-slate-900 transition-all duration-200 hover:bg-slate-200 md:px-4"
+    >
+      <Plus size={16} />
+      <span className="hidden sm:inline">File a Report</span>
+    </button>
+
+    {/* Hamburger button - mobile only */}
+    <button
+      onClick={() => setMobileMenuOpen(true)}
+      className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-slate-200 transition-all duration-200 hover:bg-slate-800 md:hidden"
+    >
+      <Menu size={20} />
+    </button>
+  </div>
+</header>
 
         {/* Zip Filter Bar */}
         {view !== "zones" && (
@@ -249,7 +327,7 @@ if (search.trim()) {
 
         {/* Content */}
                 {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 pb-20 md:p-6 md:pb-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
                     {data.loading ? (
             <div className="flex h-full items-center justify-center">
               <div className="text-sm text-slate-500">Loading your community…</div>
@@ -342,25 +420,7 @@ Through this project, we hope to show how technology can bring people together a
         
         <Footer />
 
-        {/* Mobile Bottom Nav */}
-        <nav className="flex items-stretch border-t border-slate-800 bg-slate-900/95 backdrop-blur-md md:hidden">
-          {NAV.map((n) => {
-            const Icon = n.icon;
-            const active = view === n.id;
-            return (
-              <button
-                key={n.id}
-                onClick={() => setView(n.id)}
-                className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-all duration-200 ${
-                  active ? "text-white" : "text-slate-500"
-                }`}
-              >
-                <Icon size={20} className={active ? "text-white" : "text-slate-500"} />
-                {n.label}
-              </button>
-            );
-          })}
-        </nav>
+        
       </main>
 
       <ReportModal
