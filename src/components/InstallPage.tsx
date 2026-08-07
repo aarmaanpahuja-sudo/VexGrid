@@ -8,9 +8,9 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-// Your public VAPID key
+
 const VAPID_PUBLIC_KEY =
-  "BAth4bWEDJFKdZ3bzS8UrXcKZSmDGgnRBbaB2zFLM_ZN8pfBrnTQo585z51zwtFnWWeMatx3MVUx4bPSJ8GUNk0";
+  "BIv4jDkdVHMEFWoQyYB6sLAMSx8dYtCTdavF9Wq_hffHfGfLTPl8WPorVlQcOlg8_pZajqVInhsqfeGtgUPdHO8";
 
 function isStandalone(): boolean {
   return (
