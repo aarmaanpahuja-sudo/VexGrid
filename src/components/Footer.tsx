@@ -60,7 +60,7 @@ export default function Footer() {
 
         {/* DESKTOP ONLY TAGLINE */}
         <p className="mt-2 hidden text-center text-xs sm:block">
-          Built for Loudoun. Designed for every community.
+          "Neighbors Helping Neighbors, One Tap at a Time."
         </p>
 
       </div>
