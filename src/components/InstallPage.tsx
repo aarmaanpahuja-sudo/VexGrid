@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
-import { Download, Share, Smartphone, CheckCircle2 } from "lucide-react";
+import { Download, Share, Smartphone, CheckCircle2, Bell, BellOff } from "lucide-react";
+import { supabase } from "../lib/supabase";
+import { getOrCreateClientId } from "../lib/clientId";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
+
+// Your public VAPID key
+const VAPID_PUBLIC_KEY =
+  "BAth4bWEDJFKdZ3bzS8UrXcKZSmDGgnRBbaB2zFLM_ZN8pfBrnTQo585z51zwtFnWWeMatx3MVUx4bPSJ8GUNk0";
 
 function isStandalone(): boolean {
   return (
@@ -13,28 +19,43 @@ function isStandalone(): boolean {
   );
 }
 
-function isIos(): boolean {
-  return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
 }
 
 export default function InstallPage() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [notifStatus, setNotifStatus] = useState<"unknown" | "enabled" | "denied" | "default">("unknown");
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifMessage, setNotifMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Already running as installed app?
     if (isStandalone()) {
       setIsInstalled(true);
-      return;
     }
 
-    // Listen for Android install prompt
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
-
     window.addEventListener("beforeinstallprompt", handler);
+
+    if ("Notification" in window) {
+      if (Notification.permission === "granted") {
+        setNotifStatus("enabled");
+      } else {
+        setNotifStatus(Notification.permission as "default" | "denied");
+      }
+    }
+
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
@@ -48,8 +69,61 @@ export default function InstallPage() {
     }
   };
 
-  // Already installed
-  if (isInstalled) {
+  const enableNotifications = async () => {
+    setNotifLoading(true);
+    setNotifMessage(null);
+
+    try {
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        setNotifMessage("Push notifications are not supported on this browser.");
+        setNotifLoading(false);
+        return;
+      }
+
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        setNotifStatus("denied");
+        setNotifMessage("Permission denied. You can enable it later in browser settings.");
+        setNotifLoading(false);
+        return;
+      }
+
+      const registration = await navigator.serviceWorker.ready;
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+
+      const subJson = subscription.toJSON();
+      const clientId = getOrCreateClientId();
+
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const { error } = await supabase.from("push_subscriptions").upsert(
+        {
+          endpoint: subJson.endpoint,
+          p256dh: subJson.keys?.p256dh,
+          auth: subJson.keys?.auth,
+          client_id: clientId,
+          user_id: user?.id ?? null,
+        },
+        { onConflict: "endpoint" }
+      );
+
+      if (error) throw error;
+
+      setNotifStatus("enabled");
+      setNotifMessage("Notifications enabled! You’ll get alerts for new incidents in your watch zones.");
+    } catch (err) {
+      console.error(err);
+      setNotifMessage(err instanceof Error ? err.message : "Failed to enable notifications.");
+    } finally {
+      setNotifLoading(false);
+    }
+  };
+
+  if (isInstalled && notifStatus === "enabled") {
     return (
       <div className="mx-auto max-w-lg px-4 py-10 text-center">
         <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-400">
@@ -57,7 +131,7 @@ export default function InstallPage() {
         </div>
         <h2 className="text-xl font-semibold text-white">You’re all set!</h2>
         <p className="mt-2 text-sm text-slate-400">
-          VexGrid is already installed on this device and running in full-screen mode.
+          VexGrid is installed and notifications are enabled.
         </p>
       </div>
     );
@@ -71,8 +145,41 @@ export default function InstallPage() {
         </div>
         <h2 className="text-xl font-semibold text-white">Install VexGrid</h2>
         <p className="mt-2 text-sm text-slate-400">
-          Add VexGrid to your home screen for the best experience — full screen, faster, and always one tap away.
+          Add VexGrid to your home screen and enable notifications so you never miss an alert in your community.
         </p>
+      </div>
+
+      {/* Notifications */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+          <Bell size={16} />
+          Notifications
+        </h3>
+
+        {notifStatus === "enabled" ? (
+          <div className="flex items-center gap-2 text-sm text-emerald-400">
+            <CheckCircle2 size={16} />
+            Notifications are enabled
+          </div>
+        ) : notifStatus === "denied" ? (
+          <div className="flex items-center gap-2 text-sm text-red-400">
+            <BellOff size={16} />
+            Permission denied — enable it in your browser/phone settings
+          </div>
+        ) : (
+          <button
+            onClick={enableNotifications}
+            disabled={notifLoading}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-200 disabled:opacity-50"
+          >
+            <Bell size={18} />
+            {notifLoading ? "Enabling…" : "Enable Notifications"}
+          </button>
+        )}
+
+        {notifMessage && (
+          <p className="mt-3 text-xs text-slate-400">{notifMessage}</p>
+        )}
       </div>
 
       {/* Android / Chrome */}
@@ -97,7 +204,7 @@ export default function InstallPage() {
         )}
       </div>
 
-      {/* iPhone */}
+      {/* iPhone / iPad */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
         <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
           <Share size={16} />
@@ -110,11 +217,15 @@ export default function InstallPage() {
           </li>
           <li className="flex gap-3">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-medium text-slate-300">2</span>
-            <span>Scroll down and tap <strong className="text-white">Add to Home Screen. </strong> If you do not see this button, tap the <strong className="text-white">More</strong> arrow and scroll down. Then tap <strong className="text-white">Add to Home Screen. </strong></span>
+            <span>Scroll down and tap <strong className="text-white">Add to Home Screen</strong>. If you do not see this button, tap the <strong className="text-white">More</strong> arrow and scroll down. Then tap <strong className="text-white">Add to Home Screen</strong>.</span>
           </li>
           <li className="flex gap-3">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-medium text-slate-300">3</span>
             <span>Tap <strong className="text-white">Add</strong> in the top right corner</span>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-medium text-slate-300">4</span>
+            <span>Open the app from your Home Screen, then come back here and tap <strong className="text-white">Enable Notifications</strong></span>
           </li>
         </ol>
       </div>
