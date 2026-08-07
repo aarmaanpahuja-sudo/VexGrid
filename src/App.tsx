@@ -30,7 +30,7 @@ import MapView from "./components/MapView";
 import AuthModal from "./components/AuthModal";
 import InstallPage from "./components/InstallPage";
 
-type View = "feed" | "map" | "zones" | "analytics" | "about" | "install";
+type View = "feed" | "map" | "zones" | "analytics" | "about" | "install" | "privacy";
 
 const NAV: { id: View; label: string; icon: any }[] = [
   { id: "feed", label: "Feed", icon: Home },
@@ -39,6 +39,7 @@ const NAV: { id: View; label: string; icon: any }[] = [
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "install", label: "Install", icon: Download },
   { id: "about", label: "About", icon: Info },
+  { id: "privacy", label: "Privacy", icon: ShieldCheck },
 ];
 
 export default function App() {
@@ -376,45 +377,191 @@ onOpenMap={openIncidentMap}
   zones={data.zones}
 />
                     ) : view === "install" ? (
-            <InstallPage />
-          ) : view === "about" ? (
-            // ==================== ABOUT PAGE ====================
-            <div className="mx-auto max-w-2xl p-6 space-y-8">
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-2">About VexGrid</h1>
-                <p className="text-slate-400">
-                  VexGrid is a community-driven safety platform that helps neighbors
-                  stay informed and look out for each other in real time. While we designed this app for Loudoun, we designed it to work in any U.S. community.
-                </p>
-              </div>
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-white">How it works</h2>
-                <ul className="space-y-2 text-slate-300 list-disc list-inside">
-                  <li>Neighbors post reports about local incidents</li>
-                  <li>Others can verify reports and add updates</li>
-                  <li>Everyone sees incidents only in their watch zones</li>
-                  <li>Earn karma by contributing to your community</li>
-                </ul>
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-white mb-2">Our Mission</h2>
-                <p className="text-slate-300">
-                  We believe that safer neighborhoods start with better information.
-                  By sharing what we see, we can all look out for each other.
-                </p>
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-white mb-2">About Us</h2>
-                <p className="text-slate-300">
-                  You may be wondering, “What exactly is this project?” To answer your question, VexGrid is a project created for the Step Up Loudoun Youth Competition by 9th graders Aarmaan Pahuja and Aditya Ghosh, along with 7th graders Abhir Pahuja and Ayaan Priyal.
+  <InstallPage />
+) : view === "about" ? (
+  // ==================== ABOUT PAGE ====================
+  <div className="mx-auto max-w-2xl p-6 space-y-8">
+    <div>
+      <h1 className="text-3xl font-bold text-white mb-2">About VexGrid</h1>
+      <p className="text-slate-400">
+        VexGrid is a community-driven safety platform that helps neighbors
+        stay informed and look out for each other in real time. While we designed this app for Loudoun, we designed it to work in any U.S. community.
+      </p>
+    </div>
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold text-white">How it works</h2>
+      <ul className="space-y-2 text-slate-300 list-disc list-inside">
+        <li>Neighbors post reports about local incidents</li>
+        <li>Others can verify reports and add updates</li>
+        <li>Everyone sees incidents only in their watch zones</li>
+        <li>Earn karma by contributing to your community</li>
+      </ul>
+    </div>
+    <div>
+      <h2 className="text-xl font-semibold text-white mb-2">Our Mission</h2>
+      <p className="text-slate-300">
+        We believe that safer neighborhoods start with better information.
+        By sharing what we see, we can all look out for each other.
+      </p>
+    </div>
+    <div>
+      <h2 className="text-xl font-semibold text-white mb-2">About Us</h2>
+      <p className="text-slate-300">
+        You may be wondering, “What exactly is this project?” To answer your question, VexGrid is a project created for the Step Up Loudoun Youth Competition by 9th graders Aarmaan Pahuja and Aditya Ghosh, along with 7th graders Abhir Pahuja and Ayaan Priyal.
 We all live in communities where neighbors look out for each other, but we noticed that there was not an easy way for people to quickly share important local updates. Whether it is an unattended package, a lost pet, suspicious activity, vandalism, or a request for a safe walk, important information can easily go unnoticed. We wanted to create a platform that helps communities stay connected, informed, and safer.
 VexGrid is a real-time neighborhood safety platform where residents can report and track local incidents within their community. Users can view active reports, receive updates, communicate through comments, verify incidents, and monitor specific watch zones that matter to them. By making it easier for neighbors to work together, VexGrid helps communities respond faster and support each other.
 However, technology alone cannot create a safer community. VexGrid is designed to encourage awareness, responsibility, and cooperation between neighbors. The goal is not to expose problems, but to give communities the tools they need to help one another and prevent small issues from becoming bigger ones.
 Through this project, we hope to show how technology can bring people together and create stronger, more connected neighborhoods.
-                </p>
-              </div>
-            </div>
-          ) : null}
+      </p>
+    </div>
+  </div>
+) : view === "privacy" ? (
+  // ==================== PRIVACY POLICY ====================
+  <div className="mx-auto max-w-3xl p-6 space-y-8 text-slate-300">
+    <div>
+      <h1 className="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
+      <p className="text-slate-400 text-sm">Last Updated: August 7, 2026</p>
+    </div>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">1. Introduction</h2>
+      <p>
+        VexGrid (“we,” “us,” or “our”) is a real-time neighborhood safety platform that enables community members to report and track local incidents such as open garage doors, unattended packages, lost/found pets, property vandalism, suspicious activity, and safe-walk requests. The service is available at https://vexgrid.vercel.app (and related domains or progressive web app installs).
+      </p>
+      <p>
+        This Privacy Policy explains what information we collect, how we use and share it, and the choices you have. By using VexGrid you agree to the practices described here.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">2. Information We Collect</h2>
+      
+      <h3 className="text-lg font-medium text-white mt-4">A. Information You Provide Directly</h3>
+      <ul className="list-disc list-inside space-y-1 ml-2">
+        <li><strong>Incident reports</strong>: Category, title, description, zip code, optional location description, and status updates.</li>
+        <li><strong>Comments / updates</strong>: Text body and optional display/author name on incidents.</li>
+        <li><strong>Watch zones</strong>: Zip codes you choose to monitor (and optional labels).</li>
+        <li><strong>Profile information</strong>: Display name and karma score (earned for filing reports).</li>
+        <li><strong>Account information</strong> (optional): Email address and password when you create an account, plus the display name you provide at sign-up.</li>
+      </ul>
+
+      <h3 className="text-lg font-medium text-white mt-4">B. Automatically Collected / Device Information</h3>
+      <ul className="list-disc list-inside space-y-1 ml-2">
+        <li><strong>Anonymous client identifier</strong>: A randomly generated UUID (<code>client_id</code>) created in your browser and stored in localStorage. This identifies your activity in anonymous mode and is sent with requests so the system can associate your private data (watch zones, profile) with you.</li>
+        <li><strong>Location data</strong>: When you file a report, the app requests your device’s geolocation (via the browser Geolocation API). If granted, precise latitude and longitude are captured and stored with the incident. If geolocation is unavailable or denied, the app may fall back to an approximate location derived from the zip code.</li>
+        <li><strong>Technical data</strong>: Standard request metadata handled by our backend provider (IP address, user agent, timestamps) as part of normal web service operation. We do not operate our own analytics or tracking scripts in the application code.</li>
+      </ul>
+
+      <h3 className="text-lg font-medium text-white mt-4">C. Information from Authentication</h3>
+      <p>
+        When you sign up or sign in with email/password, authentication is handled by Supabase Auth. We store a reference to your authenticated user ID and link it to your profile, watch zones, reports, comments, and verifications so your data can follow you across devices.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">3. How We Use Your Information</h2>
+      <p>We use the information to:</p>
+      <ul className="list-disc list-inside space-y-1 ml-2">
+        <li>Operate the core service (display live incident feeds and maps filtered by your watch zones).</li>
+        <li>Enable real-time synchronization of new reports, comments, status changes, and verifications across users via Supabase Realtime.</li>
+        <li>Associate ownership of private data (profiles and watch zones) and allow deletion of your own content.</li>
+        <li>Calculate and display neighbor karma.</li>
+        <li>Support optional account features so you can access the same profile and zones from different browsers/devices.</li>
+        <li>Improve reliability and security of the service.</li>
+      </ul>
+      <p className="mt-2">
+        We do <strong>not</strong> use the data for advertising, profiling for marketing, or selling personal information.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">4. Public Nature of Community Content</h2>
+      <p>VexGrid is designed as a community bulletin board:</p>
+      <ul className="list-disc list-inside space-y-1 ml-2">
+        <li><strong>Incidents</strong> (including category, title, description, zip code, status, verification count, and associated latitude/longitude) and <strong>comments</strong> are publicly readable by anyone using the service.</li>
+        <li>Precise location coordinates attached to reports appear on the interactive map and are visible to other users.</li>
+        <li>Your display name (if set) may appear with comments or in connection with your activity.</li>
+        <li>Watch zones and full profile details are intended to remain private to you and are protected by row-level security policies.</li>
+      </ul>
+      <p className="mt-2">
+        Because location data on public reports is visible, please avoid including highly sensitive personal details in titles or descriptions.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">5. Location Data</h2>
+      <p>
+        Location is requested only when you choose to file a report and is used solely to place the incident on the map for the community. You can deny the browser permission; the app will then use an approximate zip-code-based position. Location data associated with a report becomes part of the public incident record.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">6. Third-Party Services</h2>
+      <ul className="list-disc list-inside space-y-1 ml-2">
+        <li><strong>Supabase</strong> (database, authentication, realtime, storage of all application data). Your data is processed according to Supabase’s terms and privacy practices.</li>
+        <li><strong>Leaflet + OpenStreetMap</strong> for map rendering. Map tile requests go to OpenStreetMap infrastructure.</li>
+        <li><strong>Hosting</strong>: The frontend is deployed on Vercel.</li>
+      </ul>
+      <p className="mt-2">
+        We do not integrate advertising networks, analytics SDKs, or social login providers beyond the email/password flow handled by Supabase.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">7. Data Storage, Security, and Retention</h2>
+      <p>
+        Data is stored in a Supabase-managed PostgreSQL database with row-level security enabled. Private data is scoped to either the browser <code>client_id</code> or the authenticated <code>user_id</code>. Community content is intentionally shared.
+      </p>
+      <p>
+        We retain data for as long as necessary to provide the service. You may delete individual incidents or comments you created (subject to ownership checks). Public reports you filed may remain visible as community records even after account deletion unless separately removed.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">8. Your Choices and Rights</h2>
+      <ul className="list-disc list-inside space-y-1 ml-2">
+        <li>Use the app anonymously (browser <code>client_id</code> only) or create an optional account.</li>
+        <li>Grant or deny geolocation permission in your browser.</li>
+        <li>Edit your display name.</li>
+        <li>Add or remove watch zones.</li>
+        <li>Delete your own reports and comments.</li>
+        <li>Sign out or stop using the service at any time.</li>
+        <li>Clear localStorage to reset your anonymous client ID.</li>
+      </ul>
+      <p className="mt-2">
+        Depending on your jurisdiction you may have rights to access, correct, delete, or port your personal data. Contact us to exercise these rights.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">9. Children’s Privacy</h2>
+      <p>
+        VexGrid is not directed at children under 13 (or the applicable age in your jurisdiction). We do not knowingly collect personal information from children. If you believe we have collected such information, please contact us so we can delete it.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">10. International Users</h2>
+      <p>
+        The service is operated with infrastructure that may process data in the United States or other locations where Supabase and Vercel operate. By using VexGrid you consent to the transfer of information to those locations.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">11. Changes to This Policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time. The “Last Updated” date at the top will reflect the most recent revision. Continued use of the service after changes constitutes acceptance of the updated policy.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold text-white">12. Contact Us</h2>
+      <p>
+        For privacy-related questions, data requests, or concerns, please contact the operators of VexGrid via the contact methods listed on https://vexgrid.vercel.app or the project repository associated with the application.
+      </p>
+    </section>
+  </div>
+) : null}
         </div>
 
         
