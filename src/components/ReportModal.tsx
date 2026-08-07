@@ -185,7 +185,7 @@ location_description: "",
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Brief headline for the alert"
+                  placeholder="Brief headline for the alert - OPTIONAL"
                   className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all duration-200 focus:border-slate-500 focus:ring-2 focus:ring-slate-700/40"
                 />
               </div>
@@ -197,7 +197,7 @@ location_description: "",
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
-                  placeholder="Describe what you saw, any safety concerns, or what neighbors should know"
+                  placeholder="Describe what you saw, any safety concerns, or what neighbors should know - OPTIONAL"
                   className="w-full resize-none rounded-lg border border-slate-700 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all duration-200 focus:border-slate-500 focus:ring-2 focus:ring-slate-700/40"
                 />
               </div>
